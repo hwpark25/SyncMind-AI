@@ -1,0 +1,36 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: syncmind
+      POSTGRES_PASSWORD: syncmind
+      POSTGRES_DB: syncmind
+    ports:
+      - "5432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql://syncmind:syncmind@db:5432/syncmind
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    depends_on:
+      - db
+    ports:
+      - "8000:8000"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    environment:
+      BROWSER: "none"
+    ports:
+      - "3000:3000"
+
+volumes:
+  db_data:
+
